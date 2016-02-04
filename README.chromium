@@ -1,0 +1,8 @@
+DESCRIPTION="Kernel for Chameleon board"
+HOMEPAGE="https://github.com/altera-opensource/linux-socfpga"
+UPSTREAM_REPO="https://github.com/altera-opensource/linux-socfpga.git"
+LOCAL_GIT_REPO="https://chromium.googlesource.com/linux-fpga-chameleon"
+UPSTREAM_BUGSDB="http://forum.rocketboards.org"
+LOCAL_BUGSDB="https://code.google.com/p/chromium/issues/list"
+LICENSE="GPL-2"
+LICENSE_FILE="LICENSE"
