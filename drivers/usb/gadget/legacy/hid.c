@@ -268,6 +268,116 @@ static struct platform_driver hidg_plat_driver = {
 	},
 };
 
+/* hid descriptor for a keyboard */
+static struct hidg_func_descriptor my_hid_keyboard_desc = {
+	.subclass               = 0, /* No subclass */
+	.protocol               = 1, /* Keyboard */
+	.report_length          = 8,
+	.report_desc_length     = 63,
+	.report_desc            = {
+		0x05, 0x01,     /* USAGE_PAGE (Generic Desktop)           */
+		0x09, 0x06,     /* USAGE (Keyboard)                       */
+		0xa1, 0x01,     /* COLLECTION (Application)               */
+		0x05, 0x07,     /*   USAGE_PAGE (Keyboard)                */
+		0x19, 0xe0,     /*   USAGE_MINIMUM (Keyboard LeftControl) */
+		0x29, 0xe7,     /*   USAGE_MAXIMUM (Keyboard Right GUI)   */
+		0x15, 0x00,     /*   LOGICAL_MINIMUM (0)                  */
+		0x25, 0x01,     /*   LOGICAL_MAXIMUM (1)                  */
+		0x75, 0x01,     /*   REPORT_SIZE (1)                      */
+		0x95, 0x08,     /*   REPORT_COUNT (8)                     */
+		0x81, 0x02,     /*   INPUT (Data,Var,Abs)                 */
+		0x95, 0x01,     /*   REPORT_COUNT (1)                     */
+		0x75, 0x08,     /*   REPORT_SIZE (8)                      */
+		0x81, 0x03,     /*   INPUT (Cnst,Var,Abs)                 */
+		0x95, 0x05,     /*   REPORT_COUNT (5)                     */
+		0x75, 0x01,     /*   REPORT_SIZE (1)                      */
+		0x05, 0x08,     /*   USAGE_PAGE (LEDs)                    */
+		0x19, 0x01,     /*   USAGE_MINIMUM (Num Lock)             */
+		0x29, 0x05,     /*   USAGE_MAXIMUM (Kana)                 */
+		0x91, 0x02,     /*   OUTPUT (Data,Var,Abs)                */
+		0x95, 0x01,     /*   REPORT_COUNT (1)                     */
+		0x75, 0x03,     /*   REPORT_SIZE (3)                      */
+		0x91, 0x03,     /*   OUTPUT (Cnst,Var,Abs)                */
+		0x95, 0x06,     /*   REPORT_COUNT (6)                     */
+		0x75, 0x08,     /*   REPORT_SIZE (8)                      */
+		0x15, 0x00,     /*   LOGICAL_MINIMUM (0)                  */
+		0x25, 0x65,     /*   LOGICAL_MAXIMUM (101)                */
+		0x05, 0x07,     /*   USAGE_PAGE (Keyboard)                */
+		0x19, 0x00,     /*   USAGE_MINIMUM (Reserved)             */
+		0x29, 0x65,     /*   USAGE_MAXIMUM (Keyboard Application) */
+		0x81, 0x00,     /*   INPUT (Data,Ary,Abs)                 */
+		0xc0            /* END_COLLECTION                         */
+	}
+};
+
+static struct platform_device my_hid_keyboard = {
+	.name                   = "hidg",
+	.id                     = 0,
+	.num_resources          = 0,
+	.resource               = 0,
+	.dev.platform_data      = &my_hid_keyboard_desc,
+};
+
+/* hid descriptor for a stylus (single touch touch-screen) */
+static struct hidg_func_descriptor my_hid_stylus_desc = {
+	.subclass = 0,
+	.protocol = 0,
+	.report_length = 5,
+	.report_desc_length = 64,
+	.report_desc = {
+		0x05, 0x0d,     /* USAGE_PAGE (Digitizer)                 */
+		0x09, 0x02,     /* USAGE (Pen)                            */
+		0xa1, 0x01,     /* COLLECTION (Application)               */
+		/* declare a finger collection */
+		0x09, 0x20,     /*   Usage (Stylus)                       */
+		0xA1, 0x00,     /*   Collection (Physical)                */
+		/* Declare a finger touch (finger up/down) */
+		0x09, 0x42,     /*     Usage (Tip Switch)                 */
+		0x09, 0x32,     /*     USAGE (In Range)                   */
+		0x15, 0x00,     /*     LOGICAL_MINIMUM (0)                */
+		0x25, 0x01,     /*     LOGICAL_MAXIMUM (1)                */
+		0x75, 0x01,     /*     REPORT_SIZE (1)                    */
+		0x95, 0x02,     /*     REPORT_COUNT (2)                   */
+		0x81, 0x02,     /*     INPUT (Data,Var,Abs)               */
+		/* Declare the remaining 6 bits of the first data byte as
+		 * constant -> the driver will ignore them
+		 */
+		0x75, 0x01,     /*     REPORT_SIZE (1)                    */
+		0x95, 0x06,     /*     REPORT_COUNT (6)                   */
+		0x81, 0x01,     /*     INPUT (Cnst,Ary,Abs)               */
+		/* Define absolute X and Y coordinates of 16 bit each (percent
+		 * values multiplied with 100)
+		 * http://www.usb.org/developers/hidpage/Hut1_12v2.pdf
+		 * Chapter 16.2 says: "In the Stylus collection a Pointer
+		 * physical collection will contain the axes reported by the
+		 * stylus."
+		 */
+		0x05, 0x01,     /*     Usage Page (Generic Desktop)       */
+		0x09, 0x01,     /*     Usage (Pointer)                    */
+		0xA1, 0x00,     /*     Collection (Physical)              */
+		0x09, 0x30,     /*        Usage (X)                       */
+		0x09, 0x31,     /*        Usage (Y)                       */
+		0x16, 0x00, 0x00,  /*     Logical Minimum (0)             */
+		0x26, 0x10, 0x27,  /*     Logical Maximum (10000)         */
+		0x36, 0x00, 0x00,  /*     Physical Minimum (0)            */
+		0x46, 0x10, 0x27,  /*     Physical Maximum (10000)        */
+		0x66, 0x00, 0x00,  /*     UNIT (None)                     */
+		0x75, 0x10,     /*        Report Size (16),               */
+		0x95, 0x02,     /*        Report Count (2),               */
+		0x81, 0x02,     /*        Input (Data,Var,Abs)            */
+		0xc0,           /*     END_COLLECTION                     */
+		0xc0,           /*   END_COLLECTION                       */
+		0xc0            /* END_COLLECTION                         */
+	}
+};
+
+static struct platform_device my_hid_stylus = {
+	.name                   = "hidg",
+	.id                     = 1,
+	.num_resources          = 0,
+	.resource               = 0,
+	.dev.platform_data      = &my_hid_stylus_desc,
+};
 
 MODULE_DESCRIPTION(DRIVER_DESC);
 MODULE_AUTHOR("Fabien Chouteau, Peter Korsgaard");
@@ -276,6 +386,15 @@ MODULE_LICENSE("GPL");
 static int __init hidg_init(void)
 {
 	int status;
+
+	/* HID gadget device init */
+	status = platform_device_register(&my_hid_keyboard);
+	if (status < 0)
+		return status;
+	status = platform_device_register(&my_hid_stylus);
+	if (status < 0)
+		return status;
+	/* end */
 
 	status = platform_driver_probe(&hidg_plat_driver,
 				hidg_plat_driver_probe);
@@ -292,6 +411,11 @@ module_init(hidg_init);
 
 static void __exit hidg_cleanup(void)
 {
+	/* HID gadget device cleanup */
+	platform_device_unregister(&my_hid_keyboard);
+	platform_device_unregister(&my_hid_stylus);
+	/* end */
+
 	usb_composite_unregister(&hidg_driver);
 	platform_driver_unregister(&hidg_plat_driver);
 }
